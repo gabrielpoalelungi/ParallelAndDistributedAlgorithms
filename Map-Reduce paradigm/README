@@ -1,0 +1,43 @@
+331CC - Poalelungi Gabriel - Tema 2 APD - decembrie 2021
+
+Proiectul contine urmatoarele fisiere:
+- Tema2.java: clasa principala care creeaza task-urile pentru Map si Reduce si care porneste workerii;
+- MapRunnable.java: clasa care se ocupa de task-urile de tip Map si care trimite rezultatele inapoi la
+    principala;
+- ReduceRunnable.java: clasa care se ocupa de task-urile de tip Reduce si care trimite rezultatele inapoi
+    la clasa principala;
+- ResultReduceRunnable.java: clasa care reprezinta un rezultat generat de Reduce. Contine numele fisierului
+    din care provine rezultatul, pozitia fisierului in vectorul din Tema2.java, lista de dictionare si
+    si lista de liste de cuvinte de lungime maxima pentru fiecare fragment.
+- ResultMapRunnable.java: clasa care reprezinta un rezultat generat de Map. Contine numele fisierului
+    din care provine rezultatul, dictionarul fragmentului asignat task-ului si lista de cuvinte maxime
+    din fragmentul respectiv;
+
+Flow-ul programului este urmatorul:
+
+- Se creeaza lista de documente ce trebuie analizate;
+- Se creeaza task-urile de tip Map si se trimit la workeri;
+- Fiecare task de tip Map:
+    - Citeste, din documentul dat ca input, de la offset fragmentDimension bytes;
+    - Vectorul de bytes este convertit intr-un String;
+    - Se creeaza un array de token-uri astfel incat sa scape de separatori;
+    - Daca fragmentul incepe de la mijlocul unui cuvant, sare peste el (adica primul token)
+      este eliminat).
+    - Daca fragmentul se termina la mijlocul unui cuvant, il prelucreaza ca intreg (adica citeste
+      in continuare bytes pana da de separatori, apoi concateneaza la ultimul token ce a citit);
+    - Se creeaza dictionarul si lista de cuvinte maximale;
+    - Rezultatul este salvat intr-un array de rezultate de tip Map din Tema2.java;
+    - Worker-ul isi termina task-ul;
+- Rularea intra in busy waiting pana cand toti workerii termina task-urile de tip Map;
+- Se repornesc workerii;
+- Se creeaza task-urile de tip Reduce si se trimit la workeri;
+- Fiecare task de tip Reduce:
+    - Combina toate dictionarele ale fiecarui fragment intr-un dictionar al documentului;
+    - Calculeaza lungimea maxima a unui cuvant din tot documentul si cate aparitii sunt;
+    - Calculeaza rank-ul documentului dupa formula din cerinta;
+    - Rezultatul este salvat intr-un array de rezultate de tip Reduce din Tema2.java;
+    - Worker-ul isi termina task-ul;
+- Rularea intra in busy waiting pana cand toti workerii termina task-urile de tip Map;
+- Se opresc workerii;
+- Se sorteaza rezultatele de tip Reduce si se scriu intr-un fisier;
+- Se inchid fisierele de intrare si iesire;

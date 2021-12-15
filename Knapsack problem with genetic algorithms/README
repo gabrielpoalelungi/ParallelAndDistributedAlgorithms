@@ -1,0 +1,40 @@
+331CC - Poalelungi Gabriel - APD - Tema1 - 2021
+
+- Pentru fiecare thread, apelez functia run_genetic_algorithm_parallel cu argumentul de tip genetic_algorithm_arguments.
+
+- Structura genetic_algorithm_arguments contine urmatoarele variabile:
+	- Cele 4 argumente din functia secventiala: objects, object_count, generations_count, sack_capacity;
+	- Id-ul thread-ului curent;
+	- Numarul total de thread-uri;
+	- Cele 3 variabile de tip individual: current_generation, next_generation, tmp;
+	- Referinta la bariera ce este recunoscuta de toate thread-urile;
+
+- In functia run_genetic_algorithm_parallel, am paralelizat urmatoarele instructiuni din versiunea secventiala:
+	- Crearea generatiei initiale (folosind formulele de la laborator pentru start_index si stop_index in functie de object_count);
+	- Am folosit bariera;
+	- Pentru fiecare generatie:
+		- Apelez compute_fitness paralelizat (cu formule de start si stop, classic stuff);
+		- Folosesc bariera ca sa se termine de calculat toate fitness-urile;
+		- Sortez generatia curenta doar pe thread-ul 0 (in mod secvential);
+		- Folosesc bariera astfel incat celelalte thread-uri sa astepte sa se termine sortarea;
+		- Fac selectia elitelor paralelizata (cu formule de start si stop in functie de count);
+		- Bariera;
+		- Fac cele 2 mutatii (tot cu formule de start si stop in functie de cele 2 count-uri ofc);
+		- Bariera;
+		- Fac crossover cu formulele de start si stop in functie de count (daca implementarea ramane asa, la ultimul thread
+		  cand ruleaza pe 4 cauzeaza seg fault. Problema este ca, daca start_index-ul este impar, for-ul are pasul 2 si asta poate face
+		  ca cele 4 memcpy-uri din crossover sa faca buffer-overflow. Am rezolvat prin incrementarea start-ului astfel incat sa fie par);
+		- Bariera;
+		- Switch to new generation si print_best_fitness pe un singur thread (0), deoarece nu ajuta paralelizarea;
+		- Bariera inainte de a trece la noua generatie;
+	- Compute_fitness_function paralelizat;
+	- QSort apelat doar pe thread-ul 0;
+	- Bariera;
+	- Printarea best_fitness-ului de catre thread-ul 0;
+
+- Algoritmul meu scaleaza foarte bine, in ciuda faptului ca sortarea este secventiala, deoarece am modificat functia cmpfnc astfel:
+	- Am observat ca, in cazul in care cele 2 fitness-uri calculate pentru cei rucsaci sunt egale, se compara in functie de numarul de obiecte din fiecare rucsac;
+	- Numararea obiectelor din fiecare rucsac se facea in cmpfnc. Avand in vedere ca functia cmpfnc se apela de foarte multe ori, nu era tocmai eficient.
+	- Asa ca, am adaugat o variabila care memoreaza numarul de obiecte din fiecare rucsac in structura individual.
+	- In functia compute_fitness_function ma folosesc de for-ul ce trece prin chromosomes (adica obiectele din rucsac) si le numar;
+	- Astfel, cmpfunc nu mai ruleaza in O(n), ci in O(1);
