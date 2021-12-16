@@ -1,5 +1,4 @@
 # ParallelAndDistributedAlgorithms
-Projects made for Parallel and Distributed Algorithms course.
 
 - Map-Reduce Paradigm (implemented a parallel algorithm using 
 ExecutorService in Java which analyzes documents and ranks them
