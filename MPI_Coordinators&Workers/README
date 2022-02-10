@@ -1,0 +1,31 @@
+331CC - Poalelungi Gabriel - Tema3APD - 17 ianuarie 2022
+
+Programul functioneaza dupa urmatoarele etape:
+
+1) Etapa initiala unde se porneste comunicatorul MPI si declara vectorul cu 
+   v[k] = k si cei 3 vectori unde se retin workerii din fiecare cluster;
+
+2) In etapa 2, fiecare worker afla cine este coordonatorul acestuia. Coordonatorii
+   0, 1, 2 deschid cele 3 fisiere, afla cine sunt workerii subordonati fiecaruia si trimit
+   fiecarui worker un mesaj cu rank-ul coordonatorului acestuia. Fiecare worker primeste
+   mesajul si salveaza rank-ul coordonatorului intr-o variabila "coord_rank".
+
+   De asemenea, coordonatorii isi trimit intre ei topologiile locale;
+
+3) In etapa 3, toata lumea afla care este topologia sistemului astfel: coordonatorii afla 
+   care sunt celelalte topologii locale, iar fiecare coordonator trimite topologia completa
+   catre workerii subordonati. In aceasta etapa, fiecare dintre workeri si coordonatori
+   afiseaza pe ecran topologia pe care au aflat-o.
+
+4) - In etapa 4, coordonatorul 0 initializeaza vectorul ce va avea elementele dublate.
+   - Acesta decide ce parte din vector trimite la fiecare cluster astfel incat toti
+     workerii sa aiba dimensiunea jobului egala.
+   - Trimite acele parti catre ceilalti coordonatori, inclusiv lui insusi;
+   - Fiecare coordonator imparte munca primita workerilor subordonati;
+   - Workerii isi indeplinesc job-ul asignat.
+
+5) In etapa 5, coordonatorii primesc rezultatele de la workerii subordonati, reasambleaza 
+   vectorul partial si il trimit coordonatorului 0.
+
+6) In etapa 6, coordonatorul 0 primeste rezultatele, reasambleaza vectorul initial, unde, acum,
+   toate valorile sunt dublate si printeaza rezultatul pe ecran.
